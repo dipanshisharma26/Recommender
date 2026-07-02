@@ -10,13 +10,20 @@ RUN npm run build
 FROM python:3.11-slim
 WORKDIR /app
 
-# Install system dependencies needed for compiling certain python packages
+# Install runtime dependencies for FAISS (OpenMP is required by faiss-cpu)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
+    libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy Python requirements and install dependencies
+# Copy Python requirements
 COPY requirements.txt .
+
+# CRITICAL OPTIMIZATION FOR RENDER (512MB RAM limit):
+# Install the CPU-only version of PyTorch first. The default PyTorch on PyPI includes
+# heavy CUDA binaries (~700MB+), which will cause Out-Of-Memory (OOM) build failures on Render.
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+
+# Install the rest of the dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Pre-download the Hugging Face embedding model during build time
