@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: shl-assessment-recommender
+    runtime: docker
+    plan: free
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false # The value must be supplied manually in the dashboard for security
