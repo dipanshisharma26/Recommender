@@ -26,11 +26,6 @@ RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/wh
 # Install the rest of the dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Pre-download the Hugging Face embedding model during build time
-# This prevents timeouts and downloads on container startup
-ENV HF_HOME=/app/.cache/huggingface
-RUN python -c "from langchain_huggingface import HuggingFaceEmbeddings; HuggingFaceEmbeddings(model_name='all-MiniLM-L6-v2')"
-
 # Copy Python application files
 COPY agent.py main.py vector_store.py shl_product_catalogue.json ./
 COPY faiss_index/ ./faiss_index/
